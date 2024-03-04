@@ -1,0 +1,111 @@
+
+.cont-sec-main {
+  height: 100vh; /* Occupy full viewport height */
+  width: 100%;
+}
+
+.rowsize1 {
+  height: 12%; /* Adjust height to occupy full parent height */
+}
+.rowsize2 {
+    height: 88%; /* Adjust height to occupy full parent height */
+  }
+
+.rowcolor {
+  background-color: black;
+  color: white;
+}
+.mobcolor{
+    background-color: black;
+    width: 200px !important;
+}
+.header{
+    display: flex;
+    margin: 10px;
+}
+.header2{
+    display: flex;
+    margin-left: 68%;
+    margin-top: 10px;
+}
+#header-name{
+    margin-top: 10px;
+}
+
+.nav{
+    display: block;
+
+}
+.navmob{
+    font-size: 15px;
+}
+.navitem{
+    margin-top: 20px;
+    margin-bottom: 0px;
+    color: white;
+}
+.logout{
+    margin-top: 130px;
+    margin-bottom: 0px;
+}
+.navlink{
+    color: white;
+}
+#profile-img{
+    width: 50px;
+    height: 50px;
+    margin-right: 20px;
+}
+#world-ball{
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    margin-left: 68%;
+}
+
+.noti-col{
+    background-color: rgb(180, 179, 179);
+}
+#noti-head{
+    text-align: center;
+    margin-top: 10px;
+}
+#noti-sec{
+    border: 2px solid rgb(136, 129, 129);
+    padding: 30px;
+    background-color: rgb(245, 239, 239);
+    border-radius: 10px;
+}
+.d-lg-none{
+    display:none;
+}
+
+@media (width < 1000px) {
+    .navlink{
+        font-size: 12px;
+    }
+  }
+  
+@media (width < 850px) {
+    .navlink{
+        font-size: 10px;
+    }
+  }
+  @media (width < 760px) {
+    .navlink{
+        font-size: 9px;
+    }
+    #noti-head{
+        text-align: center;
+        margin-top: 10px;
+        font-size: 12px;
+    }
+  }
+  @media (width < 650px) {
+    .d-lg-none{
+        display:block;
+    }
+    .rowsize2{
+        display: none;
+    }
+  }
