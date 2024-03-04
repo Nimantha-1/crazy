@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavBarCom from './navbarcom';
 import { Col, Container, Row } from "react-bootstrap";
 import Form from 'react-bootstrap/Form';
@@ -26,12 +26,15 @@ function Dashboard() {
         getUsers1();
     }, []);
 
+    useEffect(() => {
+        checkReminders();
+    }, [users, users1]);
+
     function getUsers() {
         axios.get('http://localhost/api/order.php/')
             .then(response => {
                 console.log(response.data);
                 setUsers(response.data);
-                checkReminders(response.data);
             })
             .catch(error => {
                 console.error('Error fetching users:', error);
@@ -49,20 +52,29 @@ function Dashboard() {
             });
     }
 
-    function checkReminders(data) {
+    function checkReminders() {
         const currentDate = new Date();
-        const filteredReminders = data.filter(user => {
+        const remindersArray = [];
+
+        users1.forEach(user => {
             const createdAtDate = new Date(user.created_at);
-            const updatedAtDate = new Date(user.updated_at);
-            const differenceInDays = Math.ceil((updatedAtDate - createdAtDate) / (1000 * 60 * 60 * 24));
-            return differenceInDays > 25;
+            const timeDiff = currentDate.getTime() - createdAtDate.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+            if (daysDiff <= 25) {
+                remindersArray.push({
+                    inv_id: user.inv_id,
+                    daysRemaining: 25 - daysDiff
+                });
+            }
         });
-        setReminders(filteredReminders);
+
+        setReminders(remindersArray);
     }
 
     const deleteUser = (id) => {
         axios.delete(`http://localhost/api/order.php/${id}/delete`)
-            .then(function(response){
+            .then(response => {
                 console.log(response.data);
                 getUsers();
             });
@@ -70,7 +82,7 @@ function Dashboard() {
 
     const deleteUser1 = (id) => {
         axios.delete(`http://localhost/api/notcheckToCheck/check_received_display.php/${id}/delete`)
-            .then(function(response){
+            .then(response => {
                 console.log(response.data);
                 getUsers1();
             });
@@ -79,30 +91,66 @@ function Dashboard() {
     const MyTable = () => (
         <div style={{maxHeight: "350px", overflowY: "auto"}}>
             <Table striped bordered hover>
-                {/* Table headers */}
+                <thead style={{position: "sticky", top: "0", backgroundColor: "#22f0f0" }}>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>invoice_id</th>
+                    </tr>
+                </thead>
                 <tbody>
                     {users.map((user, key) =>
                         <tr key={key}>
-                            {/* Table data */}
+                            <td>{user.id}</td>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{user.mobile}</td>
+                            <td>{user.inv_id}</td>
+                            <td>
+                                <Button variant="primary" onClick={() => setModalShow(user.inv_id)}>Launch modal with grid</Button>
+                                <Link to={`/user/${user.id}/edit`} style={{marginRight: "10px"}}>Edit</Link>
+                                <button onClick={() => deleteUser(user.id)}>Delete</button>
+                            </td>
                         </tr>
                     )}
                 </tbody>
             </Table>
+            <MyVerticallyCenteredModal show={modalShow} onHide={() => setModalShow(false)} inv_id={modalShow} />
         </div>
     );
 
     const MyTable2 = () => (
         <div style={{maxHeight: "350px", overflowY: "auto"}}>
             <Table striped bordered hover>
-                {/* Table headers */}
+                <thead style={{position: "sticky", top: "0", backgroundColor: "#22f0f0" }}>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>invoice_id</th>
+                    </tr>
+                </thead>
                 <tbody>
                     {users1.map((user, key) =>
                         <tr key={key}>
-                            {/* Table data */}
+                            <td>{user.id}</td>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{user.mobile}</td>
+                            <td>{user.inv_id}</td>
+                            <td>
+                                <Button variant="primary" onClick={() => setModalShow(user.inv_id)}>Launch modal with grid</Button>
+                                <Link to={`/user/${user.id}/edit`} style={{marginRight: "10px"}}>Edit</Link>
+                                <button onClick={() => deleteUser1(user.id)}>Delete</button>
+                            </td>
                         </tr>
                     )}
                 </tbody>
             </Table>
+            <MyVerticallyCenteredModal show={modalShow} onHide={() => setModalShow(false)} inv_id={modalShow} />
         </div>
     );
 
@@ -110,32 +158,53 @@ function Dashboard() {
         <>
             <NavBarCom />
             <div className="dashb-body">
-                {/* Search bar and buttons */}
+                <div className="searchingbar">
+                    <div className="searching">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search"
+                        />
+                    </div>
+                    <div id="searching-btn">
+                        <Button className='submitingbtn' type="submit">Search</Button>
+                    </div>
+                </div>
                 <div className="dashing-section">
                     <Tabs variant="pills" defaultActiveKey="profile" className="mb-3" fill>
                         <Tab eventKey="home" title="Check Received">
                             <div className='inv-dashing'>
                                 <MyTable2 />
                             </div>
-                            {/* Total and print button */}
+                            <Row className='inv-content2'>
+                                <Col xs={4}>Total : </Col>
+                                <Col xs={5}>01</Col>
+                                <Col xs={1}>
+                                    <Button className='printbtn'><LocalPrintshopIcon />&nbsp;&nbsp;Print</Button>
+                                </Col>
+                            </Row>
                         </Tab>
                         <Tab eventKey="profile" title="Not Check Receive">
                             <div className='inv-dashing'>
                                 <MyTable />
                             </div>
-                            {/* Total and print button */}
+                            <Row className='inv-content2'>
+                                <Col xs={4}>Total : </Col>
+                                <Col xs={5}>01</Col>
+                                <Col xs={1}>
+                                    <Button className='printbtn'><LocalPrintshopIcon />&nbsp;&nbsp;Print</Button>
+                                </Col>
+                            </Row>
+                            <div className="notifications">
+                                <h3>Notifications</h3>
+                                <ul>
+                                    {reminders.map((reminder, index) => (
+                                        <li key={index}>Invoice {reminder.inv_id} needs attention. {reminder.daysRemaining} days remaining.</li>
+                                    ))}
+                                </ul>
+                            </div>
                         </Tab>
                     </Tabs>
                 </div>
-            </div>
-            {/* Notification panel */}
-            <div className="notification-panel">
-                <h2>Reminders</h2>
-                <ul>
-                    {reminders.map((reminder, index) => (
-                        <li key={index}>Invoice ID: {reminder.inv_id}</li>
-                    ))}
-                </ul>
             </div>
         </>
     );
